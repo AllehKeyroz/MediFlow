@@ -3,8 +3,14 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Configuração do Firebase (Mesma do seu frontend)
+// Configuração para ESM (substituto do __dirname)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Configuração do Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBvFowGxEqmAzcQMrGQqNqg_cb4xay45Ug",
   authDomain: "analise-de-projeto.firebaseapp.com",
@@ -14,18 +20,17 @@ const firebaseConfig = {
   appId: "1:733196870904:web:13a4d9c2d58da29a7bc70d"
 };
 
-// Inicializa Firebase no contexto do Node.js
 const appFirebase = initializeApp(firebaseConfig);
 const db = getFirestore(appFirebase);
 
 const app = express();
-const PORT = 3001; // Porta diferente do frontend (3000/5173)
+const PORT = process.env.PORT || 3001; // Usa porta do ambiente ou 3001
 
-// Middlewares
-app.use(cors({ origin: true })); // Aceita requisições de qualquer lugar (Zapier, etc)
+app.use(cors({ origin: true }));
 app.use(bodyParser.json());
 
-// Rota do Webhook
+// --- API ROUTES ---
+
 app.post('/webhook/:clinicId', async (req, res) => {
   const { clinicId } = req.params;
   const payload = req.body;
@@ -34,7 +39,6 @@ app.post('/webhook/:clinicId', async (req, res) => {
   console.log(`[Webhook Recebido] Clinic: ${clinicId} | Source: ${source}`);
 
   try {
-    // Salva no Firestore
     const docRef = await addDoc(collection(db, 'users', clinicId, 'webhook_logs'), {
       method: 'POST',
       source: source,
@@ -58,7 +62,18 @@ app.post('/webhook/:clinicId', async (req, res) => {
   }
 });
 
+// --- FRONTEND SERVING (PRODUCTION) ---
+
+// Serve os arquivos estáticos da pasta 'dist' (gerada pelo vite build)
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Qualquer rota que não seja API, retorna o index.html (para o React Router funcionar)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
 app.listen(PORT, () => {
-  console.log(`\n🚀 Servidor de Webhooks (Node.js) rodando em http://localhost:${PORT}`);
-  console.log(`📡 Endpoint pronto: http://localhost:${PORT}/webhook/:clinicId\n`);
+  console.log(`\n🚀 Servidor Fullstack rodando na porta ${PORT}`);
+  console.log(`📡 Webhook Endpoint: /webhook/:clinicId`);
+  console.log(`💻 Frontend servido em / (após build)\n`);
 });

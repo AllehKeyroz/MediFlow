@@ -20,10 +20,18 @@ const Integrations: React.FC = () => {
   const [logs, setLogs] = useState<WebhookLog[]>([]);
   const [expandedLog, setExpandedLog] = useState<string | null>(null);
 
-  // URL do Servidor Node.js Backend (webhook-server.js)
-  // Certifique-se de rodar 'npm run server' no terminal
+  // Lógica de URL Inteligente:
+  // Se estiver em DEV (Vite), assume localhost:3001.
+  // Se estiver em PROD (Docker/Easypanel), usa a própria URL do site (window.location.origin).
+  const getBaseUrl = () => {
+    if ((import.meta as any).env.DEV) {
+      return 'http://localhost:3001';
+    }
+    return window.location.origin;
+  };
+
   const webhookUrl = currentUser 
-    ? `http://localhost:3001/webhook/${currentUser.uid}` 
+    ? `${getBaseUrl()}/webhook/${currentUser.uid}` 
     : 'Carregando...';
 
   useEffect(() => {
@@ -78,22 +86,20 @@ const Integrations: React.FC = () => {
           <Server className="h-5 w-5 text-primary-400" /> Endpoint da Sua Clínica
         </h2>
         
-        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 mb-4 flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
-            <div className="text-sm text-yellow-200">
-                <p className="font-bold">Atenção: Backend Desconectado?</p>
-                <p className="opacity-80 mt-1">
-                  Este sistema requer 2 terminais rodando simultaneamente:
-                </p>
-                <ul className="list-disc ml-5 mt-1 opacity-80">
-                  <li>Terminal 1: <code className="bg-black/30 px-1 py-0.5 rounded">npm run dev</code> (Frontend)</li>
-                  <li>Terminal 2: <code className="bg-black/30 px-1 py-0.5 rounded">npm run server</code> (Backend Webhook)</li>
-                </ul>
-            </div>
-        </div>
+        {(import.meta as any).env.DEV && (
+          <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 mb-4 flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
+              <div className="text-sm text-yellow-200">
+                  <p className="font-bold">Modo Desenvolvimento</p>
+                  <p className="opacity-80 mt-1">
+                    Certifique-se de que o backend está rodando em <code>npm run server</code>.
+                  </p>
+              </div>
+          </div>
+        )}
 
         <p className="text-slate-400 mb-4 text-sm">
-          Este é o seu endpoint local exclusivo.
+          Este é o seu endpoint exclusivo.
           <br />
           <span className="text-xs text-slate-500">
             A requisição deve ser do tipo <strong>POST</strong> e conter um corpo <strong>JSON</strong>.
@@ -137,7 +143,7 @@ const Integrations: React.FC = () => {
               </div>
               <p>Nenhum webhook recebido ainda.</p>
               <p className="text-xs mt-2 text-slate-600">
-                Envie um POST para <strong>http://localhost:3001/webhook/...</strong> para testar.
+                Teste enviando um POST para a URL acima.
               </p>
             </div>
           ) : (
