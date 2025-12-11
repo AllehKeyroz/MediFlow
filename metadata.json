@@ -1,0 +1,5 @@
+{
+  "name": "MediFlow CRM",
+  "description": "A modern CRM for patient management with Firebase authentication and Firestore integration.",
+  "requestFramePermissions": []
+}
