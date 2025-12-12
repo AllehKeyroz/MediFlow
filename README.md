@@ -1,20 +1,35 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# MediFlow CRM
 
-# Run and deploy your AI Studio app
+Um CRM moderno para gestão de pacientes com autenticação Firebase e integração Firestore.
 
-This contains everything you need to run your app locally.
+## Funcionalidades
 
-View your app in AI Studio: https://ai.studio/apps/drive/17N1zaQ5Ndkg-eV_Bqn6uPtGrIbJR12ji
+- **Dashboard**: Visão geral de pacientes e faturamento.
+- **Pacientes**: Cadastro e listagem com status.
+- **Funil de Vendas**: Kanban para gestão de leads.
+- **Integrações**: Webhook para receber dados externos.
+- **Configurações**: Gerenciamento de perfil.
 
-## Run Locally
+## Como rodar
 
-**Prerequisites:**  Node.js
+1. Instale as dependências:
+   ```bash
+   npm install
+   ```
 
+2. Rode o frontend (Desenvolvimento):
+   ```bash
+   npm run dev
+   ```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+3. Rode o servidor de Webhook:
+   ```bash
+   npm run server
+   ```
+
+## Tech Stack
+
+- React + Vite
+- Firebase (Auth, Firestore)
+- Tailwind CSS
+- Express (Backend/Webhook)
